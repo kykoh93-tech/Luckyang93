@@ -11,13 +11,14 @@ body {
   color: #fff;
   font-family: Arial, "Microsoft YaHei", sans-serif;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
   height: 100vh;
 }
 canvas {
   background: #000;
+  display: block;
 }
 .controls {
   display: grid;
@@ -25,7 +26,6 @@ canvas {
   grid-template-rows: 60px 60px 60px;
   gap: 6px;
   margin-top: 12px;
-  justify-content: center;
 }
 .btn {
   background: #22c55e;
@@ -52,7 +52,7 @@ canvas {
 </style>
 </head>
 <body>
-<h3>🐛 蚯蚓贪吃番茄 🍅</h3>
+<h3>🐛 无限蚯蚓贪吃番茄 🍅</h3>
 <canvas id="game" width="300" height="300"></canvas>
 
 <div class="controls">
@@ -70,27 +70,26 @@ canvas {
 <button class="restart" onclick="startGame()">重新开始</button>
 
 <script>
-var canvas = document.getElementById("game");
-var ctx = canvas.getContext("2d");
-var box = 15;
-var snake, food, dir, timer, score;
-var eatAnim = null; // 吃番茄动画
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const box = 15;
+let snake, food, dir, timer, score, eatAnim;
 
 function startGame() {
-  snake = [{ x: 150, y: 150 }];
+  snake = [{x: 150, y: 150}];
   dir = "RIGHT";
   food = randomFood();
   score = 0;
   eatAnim = null;
   clearInterval(timer);
-  timer = setInterval(draw, 170);
+  timer = setInterval(draw, 120);
 }
 
 function setDir(d) {
-  if(d === "UP" && dir !== "DOWN") dir = d;
-  if(d === "DOWN" && dir !== "UP") dir = d;
-  if(d === "LEFT" && dir !== "RIGHT") dir = d;
-  if(d === "RIGHT" && dir !== "LEFT") dir = d;
+  if(d==="UP" && dir!=="DOWN") dir=d;
+  if(d==="DOWN" && dir!=="UP") dir=d;
+  if(d==="LEFT" && dir!=="RIGHT") dir=d;
+  if(d==="RIGHT" && dir!=="LEFT") dir=d;
 }
 
 function randomFood() {
@@ -100,46 +99,49 @@ function randomFood() {
   };
 }
 
+// 绘制番茄
 function drawTomato(x, y) {
-  // 番茄红色圆
+  const centerX = x + box/2;
+  const centerY = y + box/2;
   ctx.fillStyle = "red";
   ctx.beginPath();
-  ctx.arc(x + box/2, y + box/2, box/2, 0, Math.PI*2);
+  ctx.arc(centerX, centerY, box/2, 0, Math.PI*2);
   ctx.fill();
-  // 番茄叶子
   ctx.fillStyle = "green";
   ctx.beginPath();
-  ctx.moveTo(x + box/2, y + 2);
-  ctx.lineTo(x + box/2 - 3, y + 5);
-  ctx.lineTo(x + box/2 + 3, y + 5);
+  ctx.moveTo(centerX, centerY - box/2 + 2);
+  ctx.lineTo(centerX - 3, centerY - box/2 + 5);
+  ctx.lineTo(centerX + 3, centerY - box/2 + 5);
   ctx.closePath();
   ctx.fill();
 }
 
+// 绘制蚯蚓身体（渐变）
 function drawWormPart(x, y, index) {
-  var headColor = [139,69,19];
-  var tailColor = [160,82,45];
-  var ratio = index / snake.length;
-  var r = Math.floor(headColor[0]*(1-ratio)+tailColor[0]*ratio);
-  var g = Math.floor(headColor[1]*(1-ratio)+tailColor[1]*ratio);
-  var b = Math.floor(headColor[2]*(1-ratio)+tailColor[2]*ratio);
+  const headColor = [139,69,19];
+  const tailColor = [160,82,45];
+  const ratio = index / snake.length;
+  const r = Math.floor(headColor[0]*(1-ratio) + tailColor[0]*ratio);
+  const g = Math.floor(headColor[1]*(1-ratio) + tailColor[1]*ratio);
+  const b = Math.floor(headColor[2]*(1-ratio) + tailColor[2]*ratio);
   ctx.fillStyle = `rgb(${r},${g},${b})`;
   ctx.beginPath();
   ctx.arc(x + box/2, y + box/2, box/2, 0, Math.PI*2);
   ctx.fill();
 }
 
+// 主绘制函数
 function draw() {
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
   // 画番茄
   drawTomato(food.x, food.y);
 
-  // 画蛇
+  // 画蚯蚓
   snake.forEach((p,i)=> drawWormPart(p.x,p.y,i));
 
-  // 蛇头坐标
-  var head = { x: snake[0].x, y: snake[0].y };
+  // 计算新头
+  let head = {x: snake[0].x, y: snake[0].y};
   if(dir==="UP") head.y -= box;
   if(dir==="DOWN") head.y += box;
   if(dir==="LEFT") head.x -= box;
@@ -152,10 +154,10 @@ function draw() {
   if(head.y >= canvas.height) head.y = 0;
 
   // 吃番茄
-  if(head.x===food.x && head.y===food.y){
+  if(head.x === food.x && head.y === food.y){
     food = randomFood();
     score++;
-    eatAnim = {x: head.x, y: head.y, timer: 5}; // 动画持续5帧
+    eatAnim = {x: head.x, y: head.y, timer: 5};
   } else {
     snake.pop();
   }
@@ -166,7 +168,7 @@ function draw() {
   if(eatAnim){
     ctx.fillStyle = "yellow";
     ctx.font = "16px Arial";
-    ctx.fillText("+1", eatAnim.x, eatAnim.y - (5*(6 - eatAnim.timer)));
+    ctx.fillText("+1", eatAnim.x + box/4, eatAnim.y - (5*(6-eatAnim.timer)));
     eatAnim.timer--;
     if(eatAnim.timer<=0) eatAnim=null;
   }
@@ -175,7 +177,6 @@ function draw() {
   if(snake.slice(1).some(p=>p.x===head.x && p.y===head.y)){
     clearInterval(timer);
     alert("游戏结束！得分：" + score);
-    return;
   }
 }
 
