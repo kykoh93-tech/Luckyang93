@@ -4,158 +4,141 @@
 <meta charset="UTF-8">
 <title>手机贪吃蛇</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-
 <style>
-  body {
-    margin: 0;
-    background: #111;
-    color: #fff;
-    font-family: "Microsoft YaHei", Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-
-  .container {
-    text-align: center;
-  }
-
-  canvas {
-    background: #000;
-    border: 2px solid #22c55e;
-  }
-
-  .controls {
-    margin-top: 15px;
-    display: grid;
-    grid-template-columns: 60px 60px 60px;
-    grid-template-rows: 60px 60px 60px;
-    gap: 8px;
-    justify-content: center;
-  }
-
-  .btn {
-    background: #22c55e;
-    color: #000;
-    font-size: 22px;
-    border-radius: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    user-select: none;
-    touch-action: manipulation;
-  }
-
-  .btn:active {
-    background: #16a34a;
-  }
-
-  .empty {
-    visibility: hidden;
-  }
-
-  button.restart {
-    margin-top: 10px;
-    padding: 8px 16px;
-    font-size: 16px;
-    border: none;
-    border-radius: 8px;
-    background: #3b82f6;
-    color: white;
-  }
+body {
+  margin: 0;
+  background: #111;
+  color: #fff;
+  font-family: Arial, "Microsoft YaHei", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+}
+canvas {
+  background: #000;
+  border: 2px solid #22c55e;
+}
+.controls {
+  display: grid;
+  grid-template-columns: 60px 60px 60px;
+  grid-template-rows: 60px 60px 60px;
+  gap: 6px;
+  margin-top: 12px;
+  justify-content: center;
+}
+.btn {
+  background: #22c55e;
+  color: #000;
+  font-size: 22px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  touch-action: manipulation;
+}
+.btn:active {
+  background: #16a34a;
+}
+.empty {
+  visibility: hidden;
+}
+.restart {
+  margin-top: 10px;
+  padding: 8px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: white;
+}
 </style>
 </head>
-
 <body>
-<div class="container">
-  <h3>🐍 手机贪吃蛇</h3>
-  <canvas id="game" width="300" height="300"></canvas>
+<h3>🐍 手机贪吃蛇</h3>
+<canvas id="game" width="300" height="300"></canvas>
 
-  <!-- 方向实体按键 -->
-  <div class="controls">
-    <div class="empty"></div>
-    <div class="btn" onclick="setDir('UP')">⬆️</div>
-    <div class="empty"></div>
+<!-- 虚拟方向按键 -->
+<div class="controls">
+  <div class="empty"></div>
+  <div class="btn" onclick="setDir('UP')">⬆️</div>
+  <div class="empty"></div>
 
-    <div class="btn" onclick="setDir('LEFT')">⬅️</div>
-    <div class="btn empty"></div>
-    <div class="btn" onclick="setDir('RIGHT')">➡️</div>
+  <div class="btn" onclick="setDir('LEFT')">⬅️</div>
+  <div class="empty"></div>
+  <div class="btn" onclick="setDir('RIGHT')">➡️</div>
 
-    <div class="empty"></div>
-    <div class="btn" onclick="setDir('DOWN')">⬇️</div>
-    <div class="empty"></div>
-  </div>
-
-  <button class="restart" onclick="startGame()">重新开始</button>
+  <div class="empty"></div>
+  <div class="btn" onclick="setDir('DOWN')">⬇️</div>
+  <div class="empty"></div>
 </div>
 
+<button class="restart" onclick="startGame()">重新开始</button>
+
 <script>
-  const canvas = document.getElementById("game");
-  const ctx = canvas.getContext("2d");
+var canvas = document.getElementById("game");
+var ctx = canvas.getContext("2d");
+var box = 15;
+var snake, food, dir, timer;
 
-  const box = 15;
-  let snake, food, dir, timer;
+function startGame() {
+  snake = [{ x: 150, y: 150 }];
+  dir = "RIGHT";
+  food = randomFood();
+  clearInterval(timer);
+  timer = setInterval(draw, 150);
+}
 
-  function startGame() {
-    snake = [{ x: 150, y: 150 }];
-    dir = "RIGHT";
+function setDir(d) {
+  if (d === "UP" && dir !== "DOWN") dir = d;
+  if (d === "DOWN" && dir !== "UP") dir = d;
+  if (d === "LEFT" && dir !== "RIGHT") dir = d;
+  if (d === "RIGHT" && dir !== "LEFT") dir = d;
+}
+
+function randomFood() {
+  return {
+    x: Math.floor(Math.random() * (canvas.width / box)) * box,
+    y: Math.floor(Math.random() * (canvas.height / box)) * box
+  };
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  snake.forEach(function(p, i) {
+    ctx.fillStyle = i === 0 ? "#22c55e" : "#4ade80";
+    ctx.fillRect(p.x, p.y, box, box);
+  });
+
+  ctx.fillStyle = "red";
+  ctx.fillRect(food.x, food.y, box, box);
+
+  var head = { x: snake[0].x, y: snake[0].y };
+  if (dir === "UP") head.y -= box;
+  if (dir === "DOWN") head.y += box;
+  if (dir === "LEFT") head.x -= box;
+  if (dir === "RIGHT") head.x += box;
+
+  if (head.x === food.x && head.y === food.y) {
     food = randomFood();
+  } else {
+    snake.pop();
+  }
+
+  if (head.x < 0 || head.y < 0 || head.x >= canvas.width || head.y >= canvas.height ||
+      snake.some(function(p){ return p.x === head.x && p.y === head.y; })) {
     clearInterval(timer);
-    timer = setInterval(draw, 140);
+    alert("游戏结束！");
+    return;
   }
 
-  function setDir(d) {
-    if (d === "UP" && dir !== "DOWN") dir = d;
-    if (d === "DOWN" && dir !== "UP") dir = d;
-    if (d === "LEFT" && dir !== "RIGHT") dir = d;
-    if (d === "RIGHT" && dir !== "LEFT") dir = d;
-  }
+  snake.unshift(head);
+}
 
-  function randomFood() {
-    return {
-      x: Math.floor(Math.random() * (canvas.width / box)) * box,
-      y: Math.floor(Math.random() * (canvas.height / box)) * box
-    };
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    snake.forEach((p, i) => {
-      ctx.fillStyle = i === 0 ? "#22c55e" : "#4ade80";
-      ctx.fillRect(p.x, p.y, box, box);
-    });
-
-    ctx.fillStyle = "red";
-    ctx.fillRect(food.x, food.y, box, box);
-
-    let head = { ...snake[0] };
-    if (dir === "UP") head.y -= box;
-    if (dir === "DOWN") head.y += box;
-    if (dir === "LEFT") head.x -= box;
-    if (dir === "RIGHT") head.x += box;
-
-    if (head.x === food.x && head.y === food.y) {
-      food = randomFood();
-    } else {
-      snake.pop();
-    }
-
-    if (
-      head.x < 0 || head.y < 0 ||
-      head.x >= canvas.width || head.y >= canvas.height ||
-      snake.some(p => p.x === head.x && p.y === head.y)
-    ) {
-      clearInterval(timer);
-      alert("游戏结束！");
-      return;
-    }
-
-    snake.unshift(head);
-  }
-
-  startGame();
+startGame();
 </script>
 </body>
 </html>
