@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>手机蚯蚓贪吃蛇</title>
+<title>手机贪吃蚯蚓</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <style>
 body {
@@ -58,7 +58,7 @@ canvas {
 </head>
 <body>
 <h3>🐛 手机贪吃蚯蚓 🍅</h3>
-<canvas id="game" width="350" height="350"></canvas>
+<canvas id="game" width="300" height="300"></canvas>
 
 <!-- 虚拟方向按键 -->
 <div class="controls">
@@ -88,7 +88,7 @@ function startGame() {
   dir = "RIGHT";
   food = randomFood();
   clearInterval(timer);
-  timer = setInterval(draw, 100);
+  timer = setInterval(draw, 160);
 }
 
 function setDir(d) {
@@ -165,3 +165,4 @@ startGame();
 </script>
 </body>
 </html>
+
