@@ -1,127 +1,161 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <title>贪吃蛇游戏</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #111;
-      color: #fff;
-      font-family: Arial, "Microsoft YaHei", sans-serif;
-    }
+<meta charset="UTF-8">
+<title>手机贪吃蛇</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-    .container {
-      text-align: center;
-    }
+<style>
+  body {
+    margin: 0;
+    background: #111;
+    color: #fff;
+    font-family: "Microsoft YaHei", Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
 
-    canvas {
-      background: #000;
-      border: 2px solid #0f0;
-    }
+  .container {
+    text-align: center;
+  }
 
-    button {
-      margin-top: 15px;
-      padding: 8px 16px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      background: #22c55e;
-      color: #000;
-    }
+  canvas {
+    background: #000;
+    border: 2px solid #22c55e;
+  }
 
-    button:hover {
-      background: #16a34a;
-    }
-  </style>
+  .controls {
+    margin-top: 15px;
+    display: grid;
+    grid-template-columns: 60px 60px 60px;
+    grid-template-rows: 60px 60px 60px;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .btn {
+    background: #22c55e;
+    color: #000;
+    font-size: 22px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    touch-action: manipulation;
+  }
+
+  .btn:active {
+    background: #16a34a;
+  }
+
+  .empty {
+    visibility: hidden;
+  }
+
+  button.restart {
+    margin-top: 10px;
+    padding: 8px 16px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    background: #3b82f6;
+    color: white;
+  }
+</style>
 </head>
 
 <body>
-  <div class="container">
-    <h2>🐍 贪吃蛇游戏</h2>
-    <p>方向键控制，吃到食物会变长</p>
-    <canvas id="game" width="400" height="400"></canvas>
-    <br>
-    <button onclick="startGame()">重新开始</button>
+<div class="container">
+  <h3>🐍 手机贪吃蛇</h3>
+  <canvas id="game" width="300" height="300"></canvas>
+
+  <!-- 方向实体按键 -->
+  <div class="controls">
+    <div class="empty"></div>
+    <div class="btn" onclick="setDir('UP')">⬆️</div>
+    <div class="empty"></div>
+
+    <div class="btn" onclick="setDir('LEFT')">⬅️</div>
+    <div class="btn empty"></div>
+    <div class="btn" onclick="setDir('RIGHT')">➡️</div>
+
+    <div class="empty"></div>
+    <div class="btn" onclick="setDir('DOWN')">⬇️</div>
+    <div class="empty"></div>
   </div>
 
-  <script>
-    const canvas = document.getElementById("game");
-    const ctx = canvas.getContext("2d");
+  <button class="restart" onclick="startGame()">重新开始</button>
+</div>
 
-    const box = 20;
-    let snake, food, direction, game;
+<script>
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
 
-    function startGame() {
-      snake = [{ x: 200, y: 200 }];
-      direction = "RIGHT";
-      food = randomFood();
+  const box = 15;
+  let snake, food, dir, timer;
 
-      clearInterval(game);
-      game = setInterval(draw, 120);
-    }
+  function startGame() {
+    snake = [{ x: 150, y: 150 }];
+    dir = "RIGHT";
+    food = randomFood();
+    clearInterval(timer);
+    timer = setInterval(draw, 140);
+  }
 
-    document.addEventListener("keydown", event => {
-      if (event.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
-      if (event.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
-      if (event.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
-      if (event.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+  function setDir(d) {
+    if (d === "UP" && dir !== "DOWN") dir = d;
+    if (d === "DOWN" && dir !== "UP") dir = d;
+    if (d === "LEFT" && dir !== "RIGHT") dir = d;
+    if (d === "RIGHT" && dir !== "LEFT") dir = d;
+  }
+
+  function randomFood() {
+    return {
+      x: Math.floor(Math.random() * (canvas.width / box)) * box,
+      y: Math.floor(Math.random() * (canvas.height / box)) * box
+    };
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    snake.forEach((p, i) => {
+      ctx.fillStyle = i === 0 ? "#22c55e" : "#4ade80";
+      ctx.fillRect(p.x, p.y, box, box);
     });
 
-    function randomFood() {
-      return {
-        x: Math.floor(Math.random() * 20) * box,
-        y: Math.floor(Math.random() * 20) * box
-      };
+    ctx.fillStyle = "red";
+    ctx.fillRect(food.x, food.y, box, box);
+
+    let head = { ...snake[0] };
+    if (dir === "UP") head.y -= box;
+    if (dir === "DOWN") head.y += box;
+    if (dir === "LEFT") head.x -= box;
+    if (dir === "RIGHT") head.x += box;
+
+    if (head.x === food.x && head.y === food.y) {
+      food = randomFood();
+    } else {
+      snake.pop();
     }
 
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // 画蛇
-      snake.forEach((part, index) => {
-        ctx.fillStyle = index === 0 ? "#22c55e" : "#4ade80";
-        ctx.fillRect(part.x, part.y, box, box);
-      });
-
-      // 画食物
-      ctx.fillStyle = "red";
-      ctx.fillRect(food.x, food.y, box, box);
-
-      // 移动
-      let head = { ...snake[0] };
-      if (direction === "UP") head.y -= box;
-      if (direction === "DOWN") head.y += box;
-      if (direction === "LEFT") head.x -= box;
-      if (direction === "RIGHT") head.x += box;
-
-      // 吃到食物
-      if (head.x === food.x && head.y === food.y) {
-        food = randomFood();
-      } else {
-        snake.pop();
-      }
-
-      // 撞墙或撞自己
-      if (
-        head.x < 0 || head.y < 0 ||
-        head.x >= canvas.width || head.y >= canvas.height ||
-        snake.some(p => p.x === head.x && p.y === head.y)
-      ) {
-        clearInterval(game);
-        alert("游戏结束！");
-        return;
-      }
-
-      snake.unshift(head);
+    if (
+      head.x < 0 || head.y < 0 ||
+      head.x >= canvas.width || head.y >= canvas.height ||
+      snake.some(p => p.x === head.x && p.y === head.y)
+    ) {
+      clearInterval(timer);
+      alert("游戏结束！");
+      return;
     }
 
-    startGame();
-  </script>
+    snake.unshift(head);
+  }
+
+  startGame();
+</script>
 </body>
 </html>
