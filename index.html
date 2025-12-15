@@ -2,54 +2,83 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>我的网页</title>
+  <title>我的第一个网站</title>
+
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(120deg, #74ebd5, #9face6);
-      height: 100vh;
       margin: 0;
+      height: 100vh;
+      background: linear-gradient(120deg, #74ebd5, #9face6);
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
+      font-family: "Microsoft YaHei", Arial, sans-serif;
     }
+
     .card {
       background: white;
       padding: 30px;
       border-radius: 12px;
-      width: 320px;
-      text-align: center;
+      width: 360px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
+
+    h2 {
+      text-align: center;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
     button {
+      width: 100%;
       margin-top: 15px;
-      padding: 10px 20px;
+      padding: 10px;
+      font-size: 16px;
       border: none;
       border-radius: 8px;
       background: #4f46e5;
       color: white;
-      font-size: 16px;
       cursor: pointer;
     }
+
     button:hover {
       background: #4338ca;
     }
   </style>
 </head>
-<body>
 
+<body>
   <div class="card">
-    <h2>你好 👋</h2>
-    <p id="text">这是一个可以通过网址打开的网页</p>
-    <button onclick="changeText()">点我继续</button>
+    <h2>欢迎来到我的网站 🎉</h2>
+
+    <p>
+      这是我使用 GitHub Pages 发布的网页，
+      你现在看到的内容都可以随时修改。
+    </p>
+
+    <ul>
+      <li>📌 永久网址</li>
+      <li>📌 免费托管</li>
+      <li>📌 实时更新</li>
+    </ul>
+
+    <p>当前时间：<b id="time"></b></p>
+
+    <button onclick="alert('你点击了按钮！')">
+      点我试试
+    </button>
   </div>
 
   <script>
-    function changeText() {
-      document.getElementById("text").innerText = "按钮被点击了 🎉";
+    function updateTime() {
+      document.getElementById("time").innerText =
+        new Date().toLocaleString();
     }
-  </script>
 
+    updateTime();
+    setInterval(updateTime, 1000);
+  </script>
 </body>
 </html>
-
